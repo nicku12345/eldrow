@@ -11,6 +11,28 @@ def load_wordlist():
     f.close()
     return ans
 
+def sort_wordlist(WORDLIST):
+    ctr = Counter()
+    masks = dict()
+
+    for word in WORDLIST:
+        masks[word] = list()
+        for mask in range(1<<5):
+            s = ""
+            for i in range(5):
+                if mask&(1<<i):
+                    s += word[i]
+                else:
+                    s += "."
+
+            if s.count(".") >= 3:
+                continue
+
+            ctr[s] += 1
+            masks[word].append(s)
+
+    WORDLIST.sort(key = lambda word : max(ctr[m] for m in masks[word]), reverse=True)
+
 best_guess_sequence = []
 mx = 0
 
@@ -44,6 +66,7 @@ def add_checked(word, guess_seq):
     
 
 WORDLIST = load_wordlist()
+sort_wordlist(WORDLIST)
 CHECKED = load_checked()
 
 WORDLIST_INDEX = {word:i for i,word in enumerate(WORDLIST)}
