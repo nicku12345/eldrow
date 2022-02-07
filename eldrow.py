@@ -213,16 +213,14 @@ def f(TARGET_WORD):
     print(f"Target word: {TARGET_WORD}. Longest guess sequence: {ans}")
     return ans
 
-
-if __name__ == "__main__":
-    for TARGET_WORD in WORDLIST:
-        if TARGET_WORD in CHECKED:
-            continue
-            
-        case = f(TARGET_WORD)
-        if len(case) > mx:
-            mx = len(case)
-            best_guess_sequence = case
+for TARGET_WORD in WORDLIST:
+    if TARGET_WORD in CHECKED:
+        continue
         
-        add_checked(TARGET_WORD, case)
-        print(f"Current max length: {mx}, best guess sequence: {best_guess_sequence}")
+    case = f(TARGET_WORD)
+    if len(case) > mx:
+        mx = len(case)
+        best_guess_sequence = case
+    
+    add_checked(TARGET_WORD, case)
+    print(f"Current max length: {mx}, best guess sequence: {best_guess_sequence}")
