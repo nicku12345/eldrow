@@ -31,7 +31,11 @@ def sort_wordlist(WORDLIST):
             ctr[s] += 1
             masks[word].append(s)
 
-    WORDLIST.sort(key = lambda word : max(ctr[m] for m in masks[word]), reverse=True)
+    for char in ctr:
+        cnt = char.count(".")
+        ctr[char] = ctr[char]**(5 - cnt)
+
+    WORDLIST.sort(key = lambda word : max(ctr[m] for m in masks[word]), reverse = True)
 
 best_guess_sequence = []
 mx = 0
@@ -161,9 +165,7 @@ def f(TARGET_WORD):
 
             idx = POW2[y]
 
-            case = dp(mask & MASKS[idx], WORDLIST[idx])
-            if case > ans:
-                ans = case
+            ans = max(ans, dp(mask & MASKS[idx], WORDLIST[idx]))
 
         return 1 + ans
     
