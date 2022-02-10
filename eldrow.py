@@ -5,13 +5,13 @@ from collections import Counter
 import re
 import ast
 
-def load_wordlist():
+def GetWordlist():
     f = open("./wordlist.txt", "r")
     ans = [line.strip() for line in f]
     f.close()
     return ans
 
-def sort_wordlist(WORDLIST):
+def SortWordlist(WORDLIST):
     ctr = Counter()
     masks = dict()
 
@@ -37,10 +37,7 @@ def sort_wordlist(WORDLIST):
 
     WORDLIST.sort(key = lambda word : max(ctr[m] for m in masks[word]), reverse = True)
 
-best_guess_sequence = []
-mx = 0
-
-def load_checked():
+def GetChecked():
     global mx, best_guess_sequence
     f = open("./checked.txt", "r")
     lines = f.readlines()
@@ -60,22 +57,13 @@ def load_checked():
     f.close()
     return ans
 
-def add_checked(word, guess_seq):
+def AddChecked(word, guess_seq):
     f = open("./checked.txt", "a")
     f.write(word + "\n")
     f.write(guess_seq.__repr__() + "\n")
     f.close()
     
     CHECKED.add(word)
-    
-
-WORDLIST = load_wordlist()
-sort_wordlist(WORDLIST)
-CHECKED = load_checked()
-
-WORDLIST_INDEX = {word:i for i,word in enumerate(WORDLIST)}
-POW2 = {(1<<i):i for i in range(len(WORDLIST))}
-
 
 def GetColor(word, target_word):
     color = ["B"]*5
@@ -139,7 +127,6 @@ def GetMask(word, target_word):
                 
     return ans
 
-
 def f(TARGET_WORD):
     print(f"Target word: {TARGET_WORD}")
     
@@ -162,9 +149,7 @@ def f(TARGET_WORD):
         while mask0:
             y = mask0&(-mask0)
             mask0 -= y
-
             idx = POW2[y]
-
             ans = max(ans, dp(mask & MASKS[idx], WORDLIST[idx]))
 
         return 1 + ans
@@ -179,10 +164,9 @@ def f(TARGET_WORD):
         while mask0:
             y = mask0&(-mask0)
             mask0 -= y
-
             idx = POW2[y]
-
             case = dp_save(mask & MASKS[idx], WORDLIST[idx])
+
             if case > ans:
                 ans = case
                 nxt[mask,word] = (mask & MASKS[idx], WORDLIST[idx])
@@ -215,14 +199,27 @@ def f(TARGET_WORD):
     print(f"Target word: {TARGET_WORD}. Longest guess sequence: {ans}")
     return ans
 
-for TARGET_WORD in WORDLIST:
-    if TARGET_WORD in CHECKED:
-        continue
+if __name__ == "__main__":
+    best_guess_sequence = []
+    mx = 0
+    WORDLIST = GetWordlist()
+    SortWordlist(WORDLIST)
+    CHECKED = GetChecked()
+
+    WORDLIST_INDEX = {word:i for i,word in enumerate(WORDLIST)}
+    POW2 = {(1<<i):i for i in range(len(WORDLIST))}
+
+    for TARGET_WORD in WORDLIST:
+        if TARGET_WORD in CHECKED:
+            continue
+            
+        case = f(TARGET_WORD)
+        if len(case) > mx:
+            mx = len(case)
+            best_guess_sequence = case
         
-    case = f(TARGET_WORD)
-    if len(case) > mx:
-        mx = len(case)
-        best_guess_sequence = case
-    
-    add_checked(TARGET_WORD, case)
-    print(f"Current max length: {mx}, best guess sequence: {best_guess_sequence}")
+        AddChecked(TARGET_WORD, case)
+        print(f"Current max length: {mx}, best guess sequence: {best_guess_sequence}")
+
+    print("Finished checking every word!")
+    print(f"Best guess sequence: {best_guess_sequence}")
